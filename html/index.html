@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3M Dealership</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app" class="root hidden">
+    <aside class="sidebar">
+      <div class="toolbar">
+        <input id="q" class="input" data-i18n="ui_search" data-i18n-attr="placeholder" data-i18n-fallback="Pretraži…" placeholder="Pretraži…" />
+        <select id="sort" class="select">
+          <option value="label" data-i18n="ui_sort_name"  data-i18n-fallback="Naziv">Naziv</option>
+          <option value="price" data-i18n="ui_sort_price" data-i18n-fallback="Cijena">Cijena</option>
+        </select>
+      </div>
+      <div id="cats" class="cats-list"></div>
+      <div class="hr"></div>
+      <div id="list" class="veh-list"></div>
+    </aside>
+
+    <div class="preview-layer">
+      <div class="helper" data-i18n="ui_hint_controls" data-i18n-fallback="Savjet: scroll=zoom • klik&vuci=rotacija">Savjet: scroll=zoom • klik&vuci=rotacija</div>
+    </div>
+
+    <section class="float-panel" aria-label="Vehicle details">
+      <header class="fp-head">
+        <div class="fp-title">
+          <div id="selLabel" class="fp-name" data-i18n="ui_pick_vehicle" data-i18n-fallback="Odaberi vozilo">Odaberi vozilo</div>
+          <div id="selMeta" class="fp-sub">—</div>
+          <div class="badge"><span class="dot"></span><span class="mono">3M Dealership</span></div>
+        </div>
+        <div class="fp-actions">
+          <button id="btn-close" class="btn ghost sm" data-i18n="ui_exit" data-i18n-fallback="Izađi">Izađi</button>
+          <div class="pill">
+            <button class="key" id="rotL" title="Rotiraj lijevo">⟲</button>
+            <button class="key" id="rotR" title="Rotiraj desno">⟳</button>
+            <div id="orbitSwitch" class="switch" data-on="1" title="Auto-orbit"></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="price-row">
+        <div class="fp-price" id="selPrice">—</div>
+      </div>
+
+      <div class="fp-colors">
+        <div class="fp-color-col">
+          <div class="dim tight" data-i18n="ui_primary" data-i18n-fallback="Primarna">Primarna</div>
+          <div class="fp-color-controls">
+            <input id="colorP" type="color" class="swatch" />
+            <input id="rgbP" class="input-rgb sm" placeholder="R,G,B" />
+            <button class="btn-apply sm" id="applyP" data-i18n="ui_apply" data-i18n-fallback="Primijeni">Primijeni</button>
+          </div>
+          <div id="presetsP" class="presets-grid"></div>
+        </div>
+        <div class="fp-color-col">
+          <div class="dim tight" data-i18n="ui_secondary" data-i18n-fallback="Sekundarna">Sekundarna</div>
+          <div class="fp-color-controls">
+            <input id="colorS" type="color" class="swatch" />
+            <input id="rgbS" class="input-rgb sm" placeholder="R,G,B" />
+            <button class="btn-apply sm" id="applyS" data-i18n="ui_apply" data-i18n-fallback="Primijeni">Primijeni</button>
+          </div>
+          <div id="presetsS" class="presets-grid"></div>
+        </div>
+      </div>
+
+      <div class="finance-box" id="finBox" aria-hidden="true">
+        <div class="fin-row">
+          <div class="fin-label" data-i18n="ui_pay_now" data-i18n-fallback="Plaćaš odmah">Plaćaš odmah</div>
+          <div class="fin-value mono" id="finDown">—</div>
+          <div class="fin-left">
+            <div class="dim tight" data-i18n="ui_installments_count" data-i18n-fallback="Broj rata">Broj rata</div>
+            <div class="fin-steps">
+              <button class="step" id="instMinus">–</button>
+              <input id="instVal" class="input sm center" type="number" min="1" max="12" value="10" />
+              <button class="step" id="instPlus">+</button>
+            </div>
+          </div>
+          <div class="fin-right">
+            <div class="dim tight" data-i18n="ui_simulation" data-i18n-fallback="Simulacija">Simulacija</div>
+            <div id="finSim" class="mono fin-sim">—</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="fp-cta">
+        <button class="btn sm" id="test"     data-i18n="test_drive" data-i18n-fallback="Probna vožnja">Probna vožnja</button>
+        <button class="btn primary sm" id="buyCash" data-i18n="buy_cash" data-i18n-fallback="Kupi">Kupi</button>
+        <button class="btn success sm" id="buyFin"  data-i18n="buy_finance" data-i18n-fallback="Financiranje">Financiranje</button>
+      </footer>
+    </section>
+  </div>
+
+  <div id="modal-root">
+    <div id="viewOverlay" class="view-overlay hidden" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div class="modal-title" id="viewTitle" data-i18n="ui_view_title" data-i18n-fallback="Pregled vozila">Pregled vozila</div>
+          <button class="modal-x" id="viewClose">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="kv">
+            <div class="k" data-i18n="ui_model" data-i18n-fallback="Model">Model</div><div class="v mono" id="viewModel">—</div>
+            <div class="k" data-i18n="ui_category" data-i18n-fallback="Kategorija">Kategorija</div><div class="v" id="viewCat">—</div>
+            <div class="k" data-i18n="ui_price" data-i18n-fallback="Cijena">Cijena</div><div class="v mono" id="viewPrice">—</div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn ghost" id="viewClose2" data-i18n="ui_close" data-i18n-fallback="Zatvori">Zatvori</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="buyOverlay" class="view-overlay hidden" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div class="modal-title" id="buyTitle" data-i18n="ui_buy_title" data-i18n-fallback="Kupnja">Kupnja</div>
+          <button class="modal-x" id="buyClose">×</button>
+        </div>
+        <div class="modal-body" id="buyBody">
+        </div>
+        <div class="modal-actions">
+          <button class="btn ghost" id="buyCancel"  data-i18n="ui_cancel"  data-i18n-fallback="Odustani">Odustani</button>
+          <button class="btn success" id="buyConfirm" data-i18n="ui_confirm" data-i18n-fallback="Potvrdi">Potvrdi</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="testOverlay" class="view-overlay hidden" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div class="modal-title" id="testTitle" data-i18n="test_drive" data-i18n-fallback="Testna vožnja">Testna vožnja</div>
+          <button class="modal-x" id="testClose">×</button>
+        </div>
+        <div class="modal-body">
+          <p class="dim"><span data-i18n="ui_vehicle" data-i18n-fallback="Vozilo">Vozilo</span>: <span class="mono" id="testModel">—</span></p>
+          <p><span data-i18n="ui_duration" data-i18n-fallback="Trajanje">Trajanje</span>: <span class="mono" id="testDur">—</span> s</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn ghost" id="testCancel" data-i18n="ui_cancel" data-i18n-fallback="Odustani">Odustani</button>
+          <button class="btn primary" id="testConfirm" data-i18n="ui_start" data-i18n-fallback="Pokreni">Pokreni</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="usedOverlay" class="view-overlay hidden" aria-hidden="true">
+    <div class="modal-card" style="width:820px;">
+      <div class="modal-head">
+        <div class="modal-title" data-i18n="ui_used_title" data-i18n-fallback="Used Market">Used Market</div>
+        <div class="tabbar" id="usedTabs">
+          <button class="tab active" data-tab="browse" data-i18n="ui_used_tab_browse" data-i18n-fallback="Ponuda">Ponuda</button>
+          <button class="tab" data-tab="sell" data-i18n="ui_used_tab_sell" data-i18n-fallback="Prodaj vozilo">Prodaj vozilo</button>
+          <button class="tab" data-tab="mine" data-i18n="ui_used_tab_mine" data-i18n-fallback="Moji oglasi">Moji oglasi</button>
+        </div>
+        <button class="modal-x" id="usedClose">×</button>
+      </div>
+
+      <div class="modal-body" style="gap:16px;">
+        <div id="usedBrowse" class="used-pane">
+          <div class="used-grid" id="usedGrid"></div>
+          <div class="used-actions">
+            <button class="btn" id="usedRefresh" data-i18n="ui_refresh" data-i18n-fallback="Osvježi">Osvježi</button>
+          </div>
+        </div>
+
+        <div id="usedSell" class="used-pane hidden">
+          <div class="form-row">
+            <label data-i18n="ui_vehicle" data-i18n-fallback="Vozilo">Vozilo</label>
+            <select id="sellVehicle"></select>
+          </div>
+          <div class="form-row">
+            <label data-i18n="ui_price_usd" data-i18n-fallback="Cijena ($)">Cijena ($)</label>
+            <input id="sellPrice" type="number" min="1" class="input sm" data-i18n="ui_price_placeholder" data-i18n-attr="placeholder" data-i18n-fallback="npr. 35000" placeholder="npr. 35000"/>
+          </div>
+          <div class="form-row">
+            <label data-i18n="ui_description" data-i18n-fallback="Opis">Opis</label>
+            <textarea id="sellDesc" class="input" rows="3" maxlength="300" data-i18n="ui_desc_placeholder" data-i18n-attr="placeholder" data-i18n-fallback="Do 300 znakova…" placeholder="Do 300 znakova…"></textarea>
+          </div>
+          <div class="form-row">
+            <label data-i18n="ui_slot" data-i18n-fallback="Slot">Slot</label>
+            <div class="slot-line">
+              <input id="sellSlot" type="number" min="1" class="input sm" />
+              <span class="dim" data-i18n="ui_slot_hint" data-i18n-fallback="Ako je zauzet, sustav automatski bira prvi slobodan.">Ako je zauzet, sustav automatski bira prvi slobodan.</span>
+            </div>
+          </div>
+          <div class="used-actions">
+            <button class="btn success" id="sellConfirm" data-i18n="ui_put_on_sale" data-i18n-fallback="Stavi na prodaju">Stavi na prodaju</button>
+          </div>
+        </div>
+
+        <div id="usedMine" class="used-pane hidden">
+          <div class="used-list" id="mineList"></div>
+          <div class="used-actions">
+            <button class="btn primary" id="claimPayout" data-i18n="podigni_isplatu" data-i18n-fallback="Podigni isplatu">Podigni isplatu</button>
+            <button class="btn" id="mineRefresh" data-i18n="ui_refresh" data-i18n-fallback="Osvježi">Osvježi</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn ghost" id="usedClose2" data-i18n="ui_close" data-i18n-fallback="Zatvori">Zatvori</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
